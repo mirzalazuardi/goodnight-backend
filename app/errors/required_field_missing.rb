@@ -1,0 +1,1 @@
+class RequiredFieldMissing < StandardError; end
