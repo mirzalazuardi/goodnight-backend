@@ -1,3 +1,7 @@
 Rails.application.routes.draw do
-  post 'users', to: 'users#create'
+  namespace :api do
+    namespace :v1 do
+      post 'users', to: 'users#create'
+    end
+  end
 end
