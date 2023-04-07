@@ -1,23 +1,27 @@
 require 'rails_helper'
 
 RSpec.describe "Api::V1::Users", type: :request do
+  before do
+    users = create_list :user, 3
+    @user1, @user2, @user3 = *users
+  end
   describe "#create" do
     context 'initialization' do
-      it 'User has 0 row' do
-        expect(User.count).to eq 0
+      it 'User has 3 row' do
+        expect(User.count).to eq 3
       end
     end
 
     context 'successful' do
       before do
         user = build :user
-        post api_v1_users_path, params: user.attributes
+        post api_v1_users_path, params: { user: user.attributes }
       end
       it "returns http success" do
         expect(response).to have_http_status(:success)
       end
-      it "returns User count equal 1" do
-        expect(User.count).to eq 1
+      it "returns User count equal 4" do
+        expect(User.count).to eq 4
       end
     end
 
@@ -27,16 +31,16 @@ RSpec.describe "Api::V1::Users", type: :request do
           create(:user, name: 'Mirzalazuardi')
         end
         it 'returns unprocessable_entity' do
-          post api_v1_users_path, params: {name: 'Mirzalazuardi'}
+          post api_v1_users_path, params: { user: { name: 'Mirzalazuardi' } }
           expect(response).to have_http_status(:unprocessable_entity)
         end
-        it "returns User count equal 1" do
-          expect(User.count).to eq 1
+        it "returns User count equal 4" do
+          expect(User.count).to eq 4
         end
       end
       context 'missing required field' do
         before do
-          post api_v1_users_path, params: {}
+          post api_v1_users_path, params: { user: {} }
         end
         it 'returns unprocessable_entity' do
           expect(response).to have_http_status(:bad_request)
@@ -46,5 +50,41 @@ RSpec.describe "Api::V1::Users", type: :request do
         end
       end
     end
+  end
+
+  describe '#follow' do
+      context 'passed' do
+        before do
+          post api_v1_follow_path(follower: { follower_id: @user2.id }),
+            headers: { key: @user1.key, secret: @user1.secret }
+        end
+        it 'status ok' do
+          expect(response).to have_http_status(:ok)
+        end 
+        it 'user1 has a follower' do
+          expect(@user1.followers.count).to eq 1
+        end
+        it 'user1 have 2 followers' do
+          post api_v1_follow_path(follower: { follower_id: @user3.id }),
+            headers: { key: @user1.key, secret: @user1.secret }
+
+          expect(@user1.followers.count).to eq 2
+        end
+        it 'user2 has a following' do
+          expect(@user2.following.count).to eq 1
+        end
+        it 'user2 have 2 followings' do
+          post api_v1_follow_path(follower: { follower_id: @user2.id }),
+            headers: { key: @user3.key, secret: @user3.secret }
+          expect(@user2.following.count).to eq 2
+        end
+      end
+      context 'failed' do
+        it 'status unauthorized' do
+          post api_v1_follow_path(follower: { follower_id: @user2.id}),
+            headers: {key: 'wrongkey', secret: 'wrongsecret'}
+          expect(response).to have_http_status(:unauthorized)
+        end 
+      end
   end
 end
