@@ -3,6 +3,7 @@ class ApplicationController < ActionController::API
 
   rescue_from RequiredFieldMissing, with: :bad_request
   rescue_from UnauthorizedAccess, with: :unauthorized_request
+  rescue_from ActiveRecord::RecordNotFound, with: :no_record
 
   def authentication
     key = request.headers["key"]
@@ -22,5 +23,9 @@ class ApplicationController < ActionController::API
 
   def unauthorized_request
     render json: {error: "unauthorized"}, status: :unauthorized
+  end
+
+  def no_record
+    render json: {error: "no record"}, status: :not_found
   end
 end
