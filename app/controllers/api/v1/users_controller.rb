@@ -1,5 +1,6 @@
 class Api::V1::UsersController < ApplicationController
   before_action :authentication, except: :create
+  before_action :set_follower_user_id, only: [:follow]
 
   def create
     raise RequiredFieldMissing.new(:name) if params.dig(:user,:name).blank?
@@ -12,7 +13,6 @@ class Api::V1::UsersController < ApplicationController
   end
 
   def follow
-    params[:follower][:user_id] = current_user.id
     @follower = Follower.new(follower_params)
     if @follower.save
       render jsonapi: @follower
@@ -22,6 +22,10 @@ class Api::V1::UsersController < ApplicationController
   end
   
   private
+
+  def set_follower_user_id
+    params[:follower][:user_id] = current_user.id
+  end
 
   def user_params
     params.require(:user).permit(:name)
