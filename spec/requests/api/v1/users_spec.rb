@@ -8,7 +8,7 @@ RSpec.describe "Api::V1::Users", type: :request do
 
   describe "#create" do
     context 'initialization' do
-      it 'User has 3 row' do
+      it 'User have 3 rows' do
         expect(User.count).to eq 3
       end
     end
@@ -135,5 +135,26 @@ RSpec.describe "Api::V1::Users", type: :request do
           expect(response).to have_http_status(:not_found)
         end 
       end
+  end
+
+  describe '#sleep_records' do
+    context 'passed' do
+      before do
+        post api_v1_sleep_records_path,
+          headers: { key: @user1.key, secret: @user1.secret }
+      end
+      it 'status ok' do
+        expect(response).to have_http_status(:ok)
+      end 
+    end
+    context 'failed' do
+      before do
+        post api_v1_sleep_records_path,
+          headers: { key: 'wrongkey', secret: 'wrongsecret' }
+      end
+      it 'status unauthorized' do
+        expect(response).to have_http_status(:unauthorized)
+      end 
+    end
   end
 end

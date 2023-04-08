@@ -1,5 +1,5 @@
 class Api::V1::UsersController < ApplicationController
-  before_action :authentication, except: :create
+  before_action :authentication, only: [:follow, :unfollow, :sleep_records]
   before_action :set_follower_user_id, only: [:follow]
   before_action :set_follower_follower_id, only: [:unfollow]
 
@@ -32,7 +32,11 @@ class Api::V1::UsersController < ApplicationController
       render jsonapi_errors: @follower, status: :unprocessable_entity
     end
   end
-  
+
+  def sleep_records
+    render json: {abc: 'd'}
+  end
+
   private
 
   def set_follower_follower_id
