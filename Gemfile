@@ -47,3 +47,5 @@ end
 gem 'tzinfo-data', platforms: [:mingw, :mswin, :x64_mingw, :jruby]
 
 gem "jsonapi.rb", "~> 2.0"
+
+gem "timecop", "~> 0.9.6", :groups => [:development, :test]

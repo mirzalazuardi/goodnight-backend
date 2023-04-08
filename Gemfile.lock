@@ -194,6 +194,7 @@ GEM
       sprockets (>= 3.0.0)
     sqlite3 (1.6.2-arm64-darwin)
     thor (1.2.1)
+    timecop (0.9.6)
     timeout (0.3.2)
     tzinfo (2.0.6)
       concurrent-ruby (~> 1.0)
@@ -221,6 +222,7 @@ DEPENDENCIES
   shoulda-matchers
   spring
   sqlite3 (~> 1.4)
+  timecop (~> 0.9.6)
   tzinfo-data
 
 RUBY VERSION
