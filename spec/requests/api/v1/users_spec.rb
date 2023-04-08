@@ -56,7 +56,8 @@ RSpec.describe "Api::V1::Users", type: :request do
   describe '#follow' do
       context 'passed' do
         before do
-          post api_v1_follow_path(follower: { follower_id: @user2.id }),
+          post api_v1_follow_path,
+            params: { follower: { follower_id: @user2.id } },
             headers: { key: @user1.key, secret: @user1.secret }
         end
         it 'status ok' do
@@ -82,7 +83,8 @@ RSpec.describe "Api::V1::Users", type: :request do
       end
       context 'failed' do
         it 'status unauthorized' do
-          post api_v1_follow_path(follower: { follower_id: @user2.id}),
+          post api_v1_follow_path,
+            params: { follower: { follower_id: @user2.id} },
             headers: {key: 'wrongkey', secret: 'wrongsecret'}
           expect(response).to have_http_status(:unauthorized)
         end 
@@ -94,8 +96,8 @@ RSpec.describe "Api::V1::Users", type: :request do
         before do
           create :follower, user: @user1, follower_id: @user2.id
           create :follower, user: @user3, follower_id: @user2.id
-          post api_v1_unfollow_path(
-            follower: { user_id: @user1.id }),
+          post api_v1_unfollow_path,
+            params: { follower: { user_id: @user1.id } },
             headers: { key: @user2.key, secret: @user2.secret }
         end
         it 'status ok' do
@@ -125,7 +127,8 @@ RSpec.describe "Api::V1::Users", type: :request do
       end
       context 'failed' do
         it 'status unauthorized' do
-          post api_v1_unfollow_path(follower: { user_id: @user1.id}),
+          post api_v1_unfollow_path,
+            params: { follower: { user_id: @user1.id} },
             headers: {key: 'wrongkey', secret: 'wrongsecret'}
           expect(response).to have_http_status(:unauthorized)
         end 
