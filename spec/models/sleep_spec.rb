@@ -4,24 +4,35 @@ RSpec.describe Sleep, type: :model do
   subject { Sleep }
   let(:user) { create :user }
 
+  shared_examples 'new sleep cycle' do |result|
+    it "has #{result} row(s)" do
+      expect(subject.count).to eq result
+    end
+
+    it 'has start value' do
+      expect(subject.last.start).not_to eq nil
+    end
+    it 'has no finish' do
+      expect(subject.last.finish).to eq nil
+    end
+    it 'has no duration seconds value' do
+      expect(subject.last.duration_seconds).to eq nil
+    end
+  end
+
+  shared_examples 'human readable time' do |sec, result|
+    it result do
+      expect(subject.human_readable_time(sec)).to eq result
+    end
+  end
+
   describe '.clock' do
     before do
       subject.clock(user.id)
     end
 
     context 'sleep start' do
-      it 'has a row' do
-        expect(subject.count).to eq 1
-      end
-      it 'has start value' do
-        expect(subject.first.start).not_to eq nil
-      end
-      it 'has no finish' do
-        expect(subject.first.finish).to eq nil
-      end
-      it 'has no duration seconds value' do
-        expect(subject.first.duration_seconds).to eq nil
-      end
+      it_behaves_like "new sleep cycle", 1
     end
 
     context 'sleep finish' do
@@ -43,62 +54,29 @@ RSpec.describe Sleep, type: :model do
         expect(subject.first.duration_seconds).to be == 3600
       end
 
-      context 'new sleep cycle(row)' do
+      context 'begin a new sleep cycle(row)' do
         before do
           Timecop.return
           subject.clock(user.id)
         end
-        it 'has 2 rows' do
-          expect(subject.count).to eq 2
-        end
-        it 'has start value' do
-          expect(subject.last.start).not_to eq nil
-        end
-        it 'has no finish' do
-          expect(subject.last.finish).to eq nil
-        end
-        it 'has no duration seconds value' do
-          expect(subject.last.duration_seconds).to eq nil
-        end
-          
+        it_behaves_like "new sleep cycle", 2
       end
     end
   end
 
   describe '.human_readable_time' do
     context 'calculations' do
-      it "1 second" do
-        expect(subject.human_readable_time(1)).to eq "1 second"
-      end
-      it "2 seconds" do
-        expect(subject.human_readable_time(2)).to eq "2 seconds"
-      end
-      it "1 minute" do
-        expect(subject.human_readable_time(60)).to eq "1 minute"
-      end
-      it "2 minutes" do
-        expect(subject.human_readable_time(120)).to eq "2 minutes"
-      end
-      it "1 hour" do
-        expect(subject.human_readable_time(3600)).to eq "1 hour"
-      end
-      it "2 hours" do
-        expect(subject.human_readable_time(7200)).to eq "2 hours"
-      end
-      it "1 day" do
-        expect(subject.human_readable_time(86400)).to eq "1 day"
-      end
-      it "2 days" do
-        expect(subject.human_readable_time(172800)).to eq "2 days"
-      end
-      it "21 days, 16 hours, 16 minutes, 21 seconds"  do
-        expect(subject.human_readable_time(1872981))
-          .to eq "21 days, 16 hours, 16 minutes, 21 seconds"
-      end
-      it "365 days"  do
-        expect(subject.human_readable_time(31536000))
-          .to eq "365 days"
+      it_behaves_like 'human readable time', 1, "1 second"
+      it_behaves_like 'human readable time', 2, "2 seconds"
+      it_behaves_like 'human readable time', 60, "1 minute"
+      it_behaves_like 'human readable time', 120, "2 minutes"
+      it_behaves_like 'human readable time', 3600, "1 hour"
+      it_behaves_like 'human readable time', 7200, "2 hours"
+      it_behaves_like 'human readable time', 86400, "1 day"
+      it_behaves_like 'human readable time', 172800, "2 days"
+      it_behaves_like 'human readable time', 1872981,
+        "21 days, 16 hours, 16 minutes, 21 seconds"
+      it_behaves_like 'human readable time',31536000 , "365 days"
       end
     end
-  end
 end
