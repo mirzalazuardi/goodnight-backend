@@ -37,4 +37,8 @@ module RSpecHelpers
   def response_json
     JSON.parse(response.body)
   end
+
+  def random_number(n, min = 1)
+    rand(n) + min
+  end
 end
