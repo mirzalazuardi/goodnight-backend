@@ -57,11 +57,11 @@ class Api::V1::UsersController < ApplicationController
   private
 
   def set_follower_follower_id
-    params[:follower][:follower_id] = current_user.id
+    params[:follow][:follower_id] = current_user.id
   end
 
   def set_follower_user_id
-    params[:follower][:user_id] = current_user.id
+    params[:follow][:user_id] = current_user.id
   end
 
   def user_params
@@ -69,7 +69,7 @@ class Api::V1::UsersController < ApplicationController
   end
 
   def follower_params
-    params.require(:follower).permit(:user_id, :follower_id)
+    params.require(:follow).permit(:user_id, :follower_id)
   end
 
   def jsonapi_meta(resources)
