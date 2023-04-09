@@ -3,12 +3,15 @@ class Sleep < ApplicationRecord
 
   scope :in_progress, ->(uid) { where(user_id: uid).where(finish: nil) }
   scope :completed, ->(uid) { where(user_id: uid).where.not(start:nil, finish: nil) }
-  scope :friends_sleeps, ->(uid) do 
-    where(user_id: User.find(uid).followers.pluck(:follower_id))
-      .order(duration_seconds: :desc)
-  end
-
+  scope :last_week, -> { where(start: 7.days.ago.beginning_of_day..Time.now) }
+  scope :desc_order_by_duration, -> { order(duration_seconds: :desc) }
   validates :start, presence: true
+
+  def self.friends_sleeps(uid)
+    where(user_id: Follower.follow_each_other_user_ids(uid))
+      .last_week
+      .desc_order_by_duration
+  end
 
   def self.clock(uid)
     last_row = in_progress(uid)

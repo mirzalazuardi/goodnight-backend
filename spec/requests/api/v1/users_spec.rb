@@ -2,14 +2,14 @@ require 'rails_helper'
 
 RSpec.describe "Api::V1::Users", type: :request do
   before do
-    users = create_list :user, 3
-    @user1, @user2, @user3 = *users
+    users = create_list :user, 8
+    @user1, @user2, @user3, @user4, @user5, @user6, @user7, @user8 = *users
   end
 
   describe "#create" do
     context 'initialization' do
-      it 'User have 3 rows' do
-        expect(User.count).to eq 3
+      it 'User have 8 rows' do
+        expect(User.count).to eq 8
       end
     end
 
@@ -21,8 +21,8 @@ RSpec.describe "Api::V1::Users", type: :request do
       it "returns http success" do
         expect(response).to have_http_status(:success)
       end
-      it "returns User count equal 4" do
-        expect(User.count).to eq 4
+      it "returns User count equal 9" do
+        expect(User.count).to eq 9
       end
     end
 
@@ -35,8 +35,8 @@ RSpec.describe "Api::V1::Users", type: :request do
           post api_v1_users_path, params: { user: { name: 'Mirzalazuardi' } }
           expect(response).to have_http_status(:unprocessable_entity)
         end
-        it "returns User count equal 4" do
-          expect(User.count).to eq 4
+        it "returns User count equal 9" do
+          expect(User.count).to eq 9
         end
       end
       context 'missing required field' do
@@ -214,16 +214,37 @@ RSpec.describe "Api::V1::Users", type: :request do
   describe '#friends_sleep_records' do
     context 'passed' do
       before do
+        #user who not follow each other to user1 (user_ids: 2, 4, 6) #not friend
         create :follower, follower_id: @user2.id, user_id: @user1.id
+        create :follower, follower_id: @user4.id, user_id: @user1.id
+        create :follower, follower_id: @user6.id, user_id: @user1.id
+
+        #user who follow each other to user1 (user_ids: 3, 5, 7) #friend
         create :follower, follower_id: @user3.id, user_id: @user1.id
+        create :follower, follower_id: @user5.id, user_id: @user1.id
+        create :follower, follower_id: @user7.id, user_id: @user1.id
+        create :follower, follower_id: @user1.id, user_id: @user3.id
+        create :follower, follower_id: @user1.id, user_id: @user5.id
+        create :follower, follower_id: @user1.id, user_id: @user7.id
 
-        Sleep.clock(@user2.id)
+        Timecop.freeze(14.days.ago.beginning_of_day)
+        Sleep.clock(@user7.id)
+        Timecop.freeze(1.hour)
+        Sleep.clock(@user7.id) # exclude because out of date range
+        Timecop.freeze(7.days)
+        Sleep.clock(@user2.id) 
+        Sleep.clock(@user4.id)
         Sleep.clock(@user3.id)
+        Sleep.clock(@user5.id)
 
-        Timecop.freeze(Time.now + 1.hour)
+        Timecop.freeze(1.hour)
         Sleep.clock(@user2.id)
-        Timecop.freeze(Time.now + 2.hour)
-        Sleep.clock(@user3.id)
+        Sleep.clock(@user4.id)
+        Timecop.freeze(2.hour)
+        Sleep.clock(@user3.id) # count in
+        Timecop.freeze(5.hour)
+        Sleep.clock(@user5.id) # count in
+        Timecop.return
 
         get api_v1_friends_sleep_records_path,
           headers: { key: @user1.key, secret: @user1.secret }
@@ -234,7 +255,7 @@ RSpec.describe "Api::V1::Users", type: :request do
       it 'have 2 rows' do
         expect(response_json['data'].count).to eq 2
       end
-      it 'the first data duration_seconds are greater than equal the last one(desc)' do
+      it 'the first data duration_seconds are greater than equal the last one(desc ordered)' do
         expect(response_json.dig('data', 0, 'attributes', 'duration_seconds'))
           .to be >= response_json.dig('data', 1, 'attributes', 'duration_seconds')
       end
