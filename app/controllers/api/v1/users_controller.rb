@@ -65,4 +65,13 @@ class Api::V1::UsersController < ApplicationController
   def follower_params
     params.require(:follower).permit(:user_id, :follower_id)
   end
+
+  def jsonapi_meta(resources)
+    pagination = jsonapi_pagination_meta(resources)
+
+    {}.tap do |h|
+      h[:total] = resources.count if resources.respond_to?(:count)
+      h[:pagination] = pagination if pagination.present?
+    end
+  end
 end

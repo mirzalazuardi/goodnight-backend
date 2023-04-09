@@ -1,4 +1,6 @@
 class ApplicationController < ActionController::API
+  include JSONAPI::Pagination
+
   attr_reader :current_user
 
   rescue_from RequiredFieldMissing, with: :bad_request
