@@ -9,6 +9,8 @@ class SleepSerializer
   end
 
   attribute :duration do |object|
-    Sleep.human_readable_time(object.duration_seconds)
+    Sleep.human_readable_time(object.duration_seconds) 
+  rescue
+    "N/A"
   end
 end

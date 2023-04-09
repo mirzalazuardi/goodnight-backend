@@ -2,6 +2,7 @@ class Sleep < ApplicationRecord
   belongs_to :user
 
   scope :in_progress, ->(uid) { where(user_id: uid).where(finish: nil) }
+  scope :completed, ->(uid) { where(user_id: uid).where.not(start:nil, finish: nil) }
   validates :start, presence: true
 
   def self.clock(uid)

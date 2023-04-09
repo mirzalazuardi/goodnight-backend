@@ -180,4 +180,34 @@ RSpec.describe "Api::V1::Users", type: :request do
       end 
     end
   end
+
+  describe '#display_sleep_records' do
+    context 'passed' do
+      before do
+        post api_v1_sleep_records_path,
+          headers: { key: @user1.key, secret: @user1.secret } #sleep
+        Timecop.freeze(Time.now + 1.hour)
+        post api_v1_sleep_records_path,
+          headers: { key: @user1.key, secret: @user1.secret } #wake
+        get api_v1_display_sleep_records_path,
+          headers: { key: @user1.key, secret: @user1.secret }
+      end
+      it 'status ok' do
+        expect(response).to have_http_status(:ok)
+      end
+      it 'return "1 hour" on duration attribute' do
+        expect(response_json['data'].last.dig('attributes', 'duration'))
+          .to eq '1 hour'
+      end
+    end
+    context 'failed' do
+      before do
+        get api_v1_display_sleep_records_path,
+          headers: { key: 'wrongkey', secret: 'wrongsecret' }
+      end
+      it 'status unauthorized' do
+        expect(response).to have_http_status(:unauthorized)
+      end
+    end
+  end
 end
