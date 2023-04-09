@@ -149,6 +149,26 @@ RSpec.describe "Api::V1::Users", type: :request do
       it 'status ok' do
         expect(response).to have_http_status(:ok)
       end 
+      context 'sleep start' do
+        it_behaves_like "new sleep cycle", 1
+      end
+      context 'sleep finish' do
+        before do
+          Timecop.freeze(Time.now + 1.hour)
+          post api_v1_sleep_records_path,
+            headers: { key: @user1.key, secret: @user1.secret }
+        end
+        it_behaves_like 'finish sleep cyle(wake)', 1, 3600
+
+        context 'begin a new sleep cycle(row)' do
+          before do
+            Timecop.return
+            post api_v1_sleep_records_path,
+              headers: { key: @user1.key, secret: @user1.secret }
+          end
+          it_behaves_like "new sleep cycle", 2
+        end
+      end
     end
     context 'failed' do
       before do

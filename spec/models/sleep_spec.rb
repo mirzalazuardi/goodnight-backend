@@ -1,12 +1,11 @@
 require 'rails_helper'
 
 RSpec.describe Sleep, type: :model do
-  subject { Sleep }
   let(:user) { create :user }
 
   describe '.clock' do
     before do
-      subject.clock(user.id)
+      Sleep.clock(user.id)
     end
 
     context 'sleep start' do
@@ -16,14 +15,14 @@ RSpec.describe Sleep, type: :model do
     context 'sleep finish' do
       before do
         Timecop.freeze(Time.now + 1.hour)
-        subject.clock(user.id)
+        Sleep.clock(user.id)
       end
       it_behaves_like 'finish sleep cyle(wake)', 1, 3600
 
       context 'begin a new sleep cycle(row)' do
         before do
           Timecop.return
-          subject.clock(user.id)
+          Sleep.clock(user.id)
         end
         it_behaves_like "new sleep cycle", 2
       end

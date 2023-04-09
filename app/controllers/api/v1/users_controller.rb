@@ -34,7 +34,12 @@ class Api::V1::UsersController < ApplicationController
   end
 
   def sleep_records
-    render json: {abc: 'd'}
+    @sleep = Sleep.clock(current_user.id)
+    if @sleep
+      render jsonapi: Sleep.where(user: current_user).last
+    else
+      render jsonapi: @sleep
+    end
   end
 
   private
