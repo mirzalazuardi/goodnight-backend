@@ -210,4 +210,43 @@ RSpec.describe "Api::V1::Users", type: :request do
       end
     end
   end
+
+  describe '#friends_sleep_records' do
+    context 'passed' do
+      before do
+        create :follower, follower_id: @user2.id, user_id: @user1.id
+        create :follower, follower_id: @user3.id, user_id: @user1.id
+
+        Sleep.clock(@user2.id)
+        Sleep.clock(@user3.id)
+
+        Timecop.freeze(Time.now + 1.hour)
+        Sleep.clock(@user2.id)
+        Timecop.freeze(Time.now + 2.hour)
+        Sleep.clock(@user3.id)
+
+        get api_v1_friends_sleep_records_path,
+          headers: { key: @user1.key, secret: @user1.secret }
+      end
+      it 'status ok' do
+        expect(response).to have_http_status(:ok)
+      end
+      it 'have 2 rows' do
+        expect(response_json['data'].count).to eq 2
+      end
+      it 'the first data duration_seconds are greater than equal the last one(desc)' do
+        expect(response_json.dig('data', 0, 'attributes', 'duration_seconds'))
+          .to be >= response_json.dig('data', 1, 'attributes', 'duration_seconds')
+      end
+    end
+    context 'failed' do
+      before do
+        get api_v1_friends_sleep_records_path,
+          headers: { key: 'wrongkey', secret: 'wrongsecret' }
+      end
+      it 'status unauthorized' do
+        expect(response).to have_http_status(:unauthorized)
+      end
+    end
+  end
 end

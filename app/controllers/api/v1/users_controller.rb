@@ -1,6 +1,7 @@
 class Api::V1::UsersController < ApplicationController
   before_action :authentication,
-    only: [:follow, :unfollow, :sleep_records, :display_sleep_records]
+    only: [:follow, :unfollow, :sleep_records, :display_sleep_records,
+           :friends_sleep_records]
   before_action :set_follower_user_id, only: [:follow]
   before_action :set_follower_follower_id, only: [:unfollow]
 
@@ -45,6 +46,11 @@ class Api::V1::UsersController < ApplicationController
 
   def display_sleep_records
     @sleeps = Sleep.completed(current_user.id)
+    render jsonapi: @sleeps
+  end
+
+  def friends_sleep_records
+    @sleeps = Sleep.friends_sleeps(current_user.id)
     render jsonapi: @sleeps
   end
 

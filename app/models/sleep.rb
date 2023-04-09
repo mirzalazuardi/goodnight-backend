@@ -3,6 +3,11 @@ class Sleep < ApplicationRecord
 
   scope :in_progress, ->(uid) { where(user_id: uid).where(finish: nil) }
   scope :completed, ->(uid) { where(user_id: uid).where.not(start:nil, finish: nil) }
+  scope :friends_sleeps, ->(uid) do 
+    where(user_id: User.find(uid).followers.pluck(:follower_id))
+      .order(duration_seconds: :desc)
+  end
+
   validates :start, presence: true
 
   def self.clock(uid)

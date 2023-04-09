@@ -1,6 +1,6 @@
 class SleepSerializer
   include JSONAPI::Serializer
-  attributes :user, :start, :finish, :duration
+  attributes :user, :start, :finish, :duration_seconds, :duration
 
   belongs_to :user, serializer: UserSerializer
 
