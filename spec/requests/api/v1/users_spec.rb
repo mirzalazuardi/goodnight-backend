@@ -79,7 +79,6 @@ RSpec.describe "Api::V1::Users", type: :request do
           post api_v1_follow_path(follower: { follower_id: @user2.id }),
             headers: { key: @user3.key, secret: @user3.secret }
           expect(@user2.followings.count).to eq 2
-          require 'pry'; binding.pry
         end
       end
       context 'failed' do
