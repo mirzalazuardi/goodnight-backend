@@ -11,7 +11,7 @@ class User < ApplicationRecord
     self.secret = SecureRandom.uuid
   end
 
-  def following
+  def followings
     Follower.following_user(id)
   end
 end

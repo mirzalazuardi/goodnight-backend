@@ -72,13 +72,14 @@ RSpec.describe "Api::V1::Users", type: :request do
 
           expect(@user1.followers.count).to eq 2
         end
-        it 'user2 has a following' do
-          expect(@user2.following.count).to eq 1
+        it 'user2 has a followings' do
+          expect(@user2.followings.count).to eq 1
         end
         it 'user2 have 2 followings' do
           post api_v1_follow_path(follower: { follower_id: @user2.id }),
             headers: { key: @user3.key, secret: @user3.secret }
-          expect(@user2.following.count).to eq 2
+          expect(@user2.followings.count).to eq 2
+          require 'pry'; binding.pry
         end
       end
       context 'failed' do
@@ -116,13 +117,13 @@ RSpec.describe "Api::V1::Users", type: :request do
           expect(@user3.followers.count).to eq 0
         end
         it 'user2 has a following' do
-          expect(@user2.following.count).to eq 1
+          expect(@user2.followings.count).to eq 1
         end
         it 'user2 has no following after unfollow user3' do
           post api_v1_unfollow_path(
             follower: { user_id: @user3.id }),
             headers: { key: @user2.key, secret: @user2.secret }
-          expect(@user2.following.count).to eq 0
+          expect(@user2.followings.count).to eq 0
         end
       end
       context 'failed' do
