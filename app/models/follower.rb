@@ -1,4 +1,5 @@
 class Follower < ApplicationRecord
+  validates :user_id, uniqueness: { scope: :follower_id }
   belongs_to :user
   belongs_to :follower, class_name: 'User'
   scope :following_user, ->(id) { where(follower_id: id) }
