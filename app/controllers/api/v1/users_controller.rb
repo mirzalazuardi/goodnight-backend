@@ -45,7 +45,7 @@ class Api::V1::UsersController < ApplicationController
   end
 
   def display_sleep_records
-    @sleeps = Sleep.completed(current_user.id)
+    @sleeps = Sleep.completed(current_user.id).order(created_at: :desc)
     render jsonapi: @sleeps
   end
 
